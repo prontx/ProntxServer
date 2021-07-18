@@ -80,7 +80,14 @@ async def calculate(ctx, num1, num2, op):
 # Command to translate the given word from one language to the other
 # Uses Google Translator APIs
 @bot.command()
-async def translate(ctx, firstlang, secondlang, word):
+async def translate(ctx, firstlang, secondlang, *args):
+    word = ''
+
+    for i in range(len(args)):
+        word += args[i]
+        if i != (len(args) - 1):
+            word += ' '
+
     import http.client
 
     conn = http.client.HTTPSConnection("google-translate1.p.rapidapi.com")
@@ -108,6 +115,64 @@ async def translate(ctx, firstlang, secondlang, word):
     result = result["data"]["translations"][0]["translatedText"]
 
     await ctx.send(f'```The translation of your word/phrase is: {result}```')
+
+# Prints the manual
+@bot.command()
+async def manual(ctx):
+    await ctx.send(f'''```
+$pomoc, $helpplz, $manual, $napoveda - print the manual
+
+$time <X>, $cas <X> - prints the time in city X, returns an error if the city hasn't been found or if the input is invalid
+
+$weather <X>, $pocasi <X> - prints the weather report of the city X, returns an error if the city hasn't been found or if the input is invalid
+
+$covid, $korona <X> - prints the covid report of the country X, returns an error if the country hasn't been found or if the input is invalid
+
+$translate <X> <Y> <z>, $prelozit <X> <Y> <z> - prints the translation the word <z> from language X to language Y
+
+$calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical operation on numbers X and Y, returns errors if input is invalid
+
+$compilate <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation.
+    ```''')
+
+# Command to determine the temperature in a city given as argument
+# Uses third party geopy APIs
+@bot.command()
+async def weather(ctx, *args):
+    try:
+
+        city = ''
+
+        for i in range(len(args)):
+            city += args[i]
+            if i != (len(args) - 1):
+                city += ' '
+
+        from geopy.geocoders import Nominatim
+
+        geolocator = Nominatim(user_agent='aurinko')
+
+        location = geolocator.geocode(city)
+
+        latitude = location.raw['lat']
+
+        longitude = location.raw['lon']
+
+        apiKey = '0676b93a6bd7fdb28d17cb06e21aa60b'
+
+        url = "https://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&appid=%s&units=metric" % (latitude, longitude, apiKey)
+
+        response = requests.get(url)
+
+        data = json.loads(response.text)
+
+        currentTemp = data["current"]["temp"]
+
+        await ctx.send(f'```Current temperature in {city} is: {currentTemp}°C```')
+
+    except AttributeError:
+        await ctx.send(f'```Sorry, can\'t find any info about that city.```')
+
 
 ###################################################################################################
 
@@ -161,7 +226,14 @@ async def spocitat(ctx, num1, num2, op):
 
 # The other name for the translate command
 @bot.command()
-async def prelozit(ctx, firstlang, secondlang, word):
+async def prelozit(ctx, firstlang, secondlang, *args):
+    word = ''
+
+    for i in range(len(args)):
+        word += args[i]
+        if i != (len(args) - 1):
+            word += ' '
+    
     import http.client
 
     conn = http.client.HTTPSConnection("google-translate1.p.rapidapi.com")
@@ -189,6 +261,98 @@ async def prelozit(ctx, firstlang, secondlang, word):
     result = result["data"]["translations"][0]["translatedText"]
 
     await ctx.send(f'```The translation of your word/phrase is: {result}```')
+
+@bot.command()
+async def pomoc(ctx):
+    await ctx.send(f'''```
+$pomoc, $helpplz, $manual, $napoveda - print the manual
+
+$time <X>, $cas <X> - prints the time in city X, returns an error if the city hasn't been found or if the input is invalid
+
+$weather <X>, $pocasi <X> - prints the weather report of the city X, returns an error if the city hasn't been found or if the input is invalid
+
+$covid, $korona <X> - prints the covid report of the country X, returns an error if the country hasn't been found or if the input is invalid
+
+$translate <X> <Y> <z>, $prelozit <X> <Y> <z> - prints the translation the word <z> from language X to language Y
+
+$calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical operation on numbers X and Y, returns errors if input is invalid
+
+$compilate <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation.
+    ```''')
+
+@bot.command()
+async def helpplz(ctx):
+    await ctx.send(f'''```
+$pomoc, $helpplz, $manual, $napoveda - print the manual
+
+$time <X>, $cas <X> - prints the time in city X, returns an error if the city hasn't been found or if the input is invalid
+
+$weather <X>, $pocasi <X> - prints the weather report of the city X, returns an error if the city hasn't been found or if the input is invalid
+
+$covid, $korona <X> - prints the covid report of the country X, returns an error if the country hasn't been found or if the input is invalid
+
+$translate <X> <Y> <z>, $prelozit <X> <Y> <z> - prints the translation the word <z> from language X to language Y
+
+$calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical operation on numbers X and Y, returns errors if input is invalid
+
+$compilate <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation.
+    ```''')
+
+@bot.command()
+async def napoveda(ctx):
+    await ctx.send(f'''```
+$pomoc, $helpplz, $manual, $napoveda - print the manual
+
+$time <X>, $cas <X> - prints the time in city X, returns an error if the city hasn't been found or if the input is invalid
+
+$weather <X>, $pocasi <X> - prints the weather report of the city X, returns an error if the city hasn't been found or if the input is invalid
+
+$covid, $korona <X> - prints the covid report of the country X, returns an error if the country hasn't been found or if the input is invalid
+
+$translate <X> <Y> <z>, $prelozit <X> <Y> <z> - prints the translation the word <z> from language X to language Y
+
+$calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical operation on numbers X and Y, returns errors if input is invalid
+
+$compilate <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation.
+    ```''')
+
+# Command to determine the temperature in a city given as argument
+# Uses third party geopy APIs
+@bot.command()
+async def pocasi(ctx, *args):
+    try:
+
+        city = ''
+
+        for i in range(len(args)):
+            city += args[i]
+            if i != (len(args) - 1):
+                city += ' '
+
+        from geopy.geocoders import Nominatim
+
+        geolocator = Nominatim(user_agent='aurinko')
+
+        location = geolocator.geocode(city)
+
+        latitude = location.raw['lat']
+
+        longitude = location.raw['lon']
+
+        apiKey = '0676b93a6bd7fdb28d17cb06e21aa60b'
+
+        url = "https://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&appid=%s&units=metric" % (latitude, longitude, apiKey)
+
+        response = requests.get(url)
+
+        data = json.loads(response.text)
+
+        currentTemp = data["current"]["temp"]
+
+        await ctx.send(f'```Current temperature in {city} is: {currentTemp}°C```')
+
+    except AttributeError:
+        await ctx.send(f'```Sorry, can\'t find any info about that city.```')
 
 # Connecting the bot to the server
 bot.run(TOKEN)
