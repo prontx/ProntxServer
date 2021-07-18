@@ -9,6 +9,12 @@
 from util import calculator_functions 
 # Can be used like: calculator_functions.add(a, b)
 
+# To make requests to third party APIs
+from requests.models import Response
+import requests, json
+
+from googletrans import Translator
+
 # To work with environment files
 import os
 
@@ -25,6 +31,8 @@ GUILD = os.getenv('DISCORD_GUILD')
 
 # Creating a bot while also specialising the command prefix symbols
 bot = commands.Bot(command_prefix=('$', '?'))
+
+###################################################################################################
 
 # Command to calculate the given operation on the given numbers
 # Uses the functions imported from the util package
@@ -68,6 +76,38 @@ async def calculate(ctx, num1, num2, op):
 
     except ZeroDivisionError:
         await ctx.send(f'```Cannot divide by zero!```')
+
+# Command to translate the given word from one language to the other
+# Uses Google Translator APIs
+@bot.command()
+async def translate(ctx, firstlang, secondlang, word):
+    import http.client
+
+    conn = http.client.HTTPSConnection("google-translate1.p.rapidapi.com")
+
+    payload = "q=" + word + "&format=text&target=" + secondlang +"&source=" + firstlang
+
+    headers = {
+        'content-type': "application/x-www-form-urlencoded",
+        'accept-encoding': "application/gzip",
+        'x-rapidapi-key': "03e84d1cebmsh8393172a48e2fb0p137f01jsn5239041898af",
+        'x-rapidapi-host': "google-translate1.p.rapidapi.com"
+    }
+
+    conn.request("POST", "/language/translate/v2", payload, headers)
+
+    res = conn.getresponse()
+
+    data = res.read()
+
+    result = data.decode('utf-8')
+
+    # Turns string into dictionary
+    result = eval(result)
+
+    result = result["data"]["translations"][0]["translatedText"]
+
+    await ctx.send(f'```The translation of your word/phrase is: {result}```')
 
 ###################################################################################################
 
@@ -118,6 +158,37 @@ async def spocitat(ctx, num1, num2, op):
     
     except ZeroDivisionError:
         await ctx.send(f'```Cannot divide by zero!```')
+
+# The other name for the translate command
+@bot.command()
+async def prelozit(ctx, firstlang, secondlang, word):
+    import http.client
+
+    conn = http.client.HTTPSConnection("google-translate1.p.rapidapi.com")
+
+    payload = "q=" + word + "&format=text&target=" + secondlang +"&source=" + firstlang
+
+    headers = {
+        'content-type': "application/x-www-form-urlencoded",
+        'accept-encoding': "application/gzip",
+        'x-rapidapi-key': "03e84d1cebmsh8393172a48e2fb0p137f01jsn5239041898af",
+        'x-rapidapi-host': "google-translate1.p.rapidapi.com"
+    }
+
+    conn.request("POST", "/language/translate/v2", payload, headers)
+
+    res = conn.getresponse()
+
+    data = res.read()
+
+    result = data.decode('utf-8')
+
+    # Turns string into dictionary
+    result = eval(result)
+
+    result = result["data"]["translations"][0]["translatedText"]
+
+    await ctx.send(f'```The translation of your word/phrase is: {result}```')
 
 # Connecting the bot to the server
 bot.run(TOKEN)
