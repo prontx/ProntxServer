@@ -15,7 +15,7 @@ is used (where **$** can be replaced with any allowed command prefix).
 
 Then the list of implemented commands (out of simplicity reasons **$** is used as a general symbol for command prefixes) is:
 ```
-$help, $pomoc, $helpplz, $manual, $napoveda - print the manual
+$pomoc, $helpplz, $manual, $napoveda - print the manual
 
 $time <X>, $cas <X> - prints the time in city X, returns an error if the city hasn't been found or if the input is invalid
 
