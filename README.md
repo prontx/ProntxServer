@@ -27,6 +27,6 @@ $translate <X> <Y> <z>, $prelozit <X> <Y> <z> - prints the translation the word 
 
 $calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical operation on numbers X and Y, returns errors if input is invalid
 
-$compilate <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation.
+$compile <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation. (Uses third party bot)
 ```
 
