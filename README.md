@@ -30,3 +30,6 @@ $calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical op
 $compile <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation. (Uses third party bot)
 ```
 
+The application keeps track of information about each user entering the server, storing them in a database. The data stored are:
+User Primary Key, User Discord ID, User Name, Channels the User Follows, Date of First Session, Permissions.
+
