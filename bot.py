@@ -34,6 +34,37 @@ bot = commands.Bot(command_prefix=('$', '?'))
 
 ###################################################################################################
 
+# Imports required to use the SQLite databases
+import sqlite3
+from sqlite3 import Error
+
+database = r'bot.db'
+
+sql_create_users_table = """ CREATE TABLE IF NOT EXISTS users (
+                                db_ID integer PRIMARY KEY,
+                                discord_ID integer NOT NULL,
+                                user_name text NOT NULL,
+                                channels text NOT NULL,
+                                begin_date text NOT NULL,
+                                permissions text NOT NULL  
+                            );"""
+
+# Creating a database connection to a SQLite database
+conn = None
+    
+conn = sqlite3.connect(database)
+
+# Creating a cursor to operate on the table
+c = conn.cursor()
+
+# The code to create the table
+c.execute(sql_create_users_table)
+
+# Closing the connection to the database
+#conn.close()
+
+###################################################################################################
+
 # Command to calculate the given operation on the given numbers
 # Uses the functions imported from the util package
 @bot.command()
