@@ -244,8 +244,25 @@ async def on_connect():
     c = conn.cursor()  
 
     # The code to create the table
-    c.execute("""INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)""",
+    c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?, ?, ?)""",
         (userPK, userID, userName, channels, firstSessionDate, permissions))
+
+    # For the changes to take place
+    conn.commit()
+
+@bot.command()
+async def me(ctx):
+    conn = sqlite3.connect(database)
+
+    # Creating a cursor to operate on the table
+    c = conn.cursor()  
+
+    c.execute("SELECT * FROM users WHERE db_ID=?", (userPK, ))
+
+    # Gets the row with the user's data
+    row = c.fetchall()
+
+    await ctx.send(f'```{row}```')
 
     # For the changes to take place
     conn.commit()
