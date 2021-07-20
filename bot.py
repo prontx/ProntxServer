@@ -21,6 +21,9 @@ import os
 import discord
 from discord.ext import commands
 
+# Will be used to calculate current time
+from datetime import date, datetime
+
 from dotenv import load_dotenv
 # Reads key-value pairs from the .env file
 load_dotenv()
@@ -59,6 +62,8 @@ c = conn.cursor()
 
 # The code to create the table
 c.execute(sql_create_users_table)
+
+conn.commit()
 
 # Closing the connection to the database
 #conn.close()
@@ -204,6 +209,45 @@ async def weather(ctx, *args):
     except AttributeError:
         await ctx.send(f'```Sorry, can\'t find any info about that city.```')
 
+
+# Handles every time a user connects to the server
+# Adds their data to the database
+
+# Is updated with each user connection
+userPK = 0
+
+@bot.event
+async def on_connect():
+    # Field 5 of the database
+    firstSessionDate = datetime.now()
+
+    # Field 1 of the database
+    global userPK
+    userPK += 1
+
+    # Field 2 of the database
+    userID = bot.user.id
+
+    # Field 3 of the database
+    userName = bot.user.name
+
+    # Field 6 of the database
+    permissions = 'User'
+
+    # Field 4 of the database
+    channels = ['#general']
+    channels = str(channels)
+
+    conn = sqlite3.connect(database)
+
+    # Creating a cursor to operate on the table
+    c = conn.cursor()
+
+    sql_insert_to_table = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)",
+    (userPK, userID, userName, channels, firstSessionDate, permissions)
+
+    # The code to create the table
+    c.execute(sql_insert_to_table)
 
 ###################################################################################################
 
