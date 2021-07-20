@@ -39,4 +39,8 @@ Channels the User Follows
 Date of First Session
 Permissions
 ```
-
+Those are printed by the 
+```
+$me
+```
+command.
