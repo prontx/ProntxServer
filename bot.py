@@ -241,11 +241,14 @@ async def on_connect():
     conn = sqlite3.connect(database)
 
     # Creating a cursor to operate on the table
-    c = conn.cursor()
+    c = conn.cursor()  
 
-    sql_insert_to_table = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)",
-    (userPK, userID, userName, channels, firstSessionDate, permissions)
-
+    sql_insert_to_table = (
+        """INSERT INTO ma
+        in(db_ID, discord_ID, user_name, channels, begin_date, permissions) 
+        VALUES (?, ?, ?, ?, ?, ?)"""
+        )
+    
     # The code to create the table
     c.execute(sql_insert_to_table)
 
