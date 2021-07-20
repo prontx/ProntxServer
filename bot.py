@@ -249,6 +249,9 @@ async def on_connect():
     # The code to create the table
     c.execute(sql_insert_to_table)
 
+    # For the changes to take place
+    conn.commit()
+
 ###################################################################################################
 
 # The other name for the calculate command
