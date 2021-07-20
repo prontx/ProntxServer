@@ -243,14 +243,9 @@ async def on_connect():
     # Creating a cursor to operate on the table
     c = conn.cursor()  
 
-    sql_insert_to_table = (
-        """INSERT INTO ma
-        in(db_ID, discord_ID, user_name, channels, begin_date, permissions) 
-        VALUES (?, ?, ?, ?, ?, ?)"""
-        )
-    
     # The code to create the table
-    c.execute(sql_insert_to_table)
+    c.execute("""INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)""",
+        (userPK, userID, userName, channels, firstSessionDate, permissions))
 
     # For the changes to take place
     conn.commit()
