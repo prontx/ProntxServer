@@ -32,8 +32,10 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 
+intents = discord.Intents.all()
+
 # Creating a bot while also specialising the command prefix symbols
-bot = commands.Bot(command_prefix=('$', '?'))
+bot = commands.Bot(command_prefix=('$', '?'), intents=intents)
 
 ###################################################################################################
 
@@ -44,8 +46,7 @@ from sqlite3 import Error
 database = r'bot.db'
 
 sql_create_users_table = """ CREATE TABLE IF NOT EXISTS users (
-                                db_ID integer PRIMARY KEY,
-                                discord_ID integer NOT NULL,
+                                discord_ID integer PRIMARY KEY,
                                 user_name text NOT NULL,
                                 channels text NOT NULL,
                                 begin_date text NOT NULL,
@@ -221,11 +222,8 @@ async def on_connect():
     # Field 5 of the database
     firstSessionDate = datetime.now()
 
-    # Field 1 of the database
-    global userPK
-    userPK += 1
-
     # Field 2 of the database
+    global userID
     userID = bot.user.id
 
     # Field 3 of the database
@@ -244,8 +242,8 @@ async def on_connect():
     c = conn.cursor()  
 
     # The code to create the table
-    c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?, ?, ?)""",
-        (userPK, userID, userName, channels, firstSessionDate, permissions))
+    c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?, ?)""",
+        (userID, userName, channels, firstSessionDate, permissions))
 
     # For the changes to take place
     conn.commit()
@@ -257,7 +255,7 @@ async def me(ctx):
     # Creating a cursor to operate on the table
     c = conn.cursor()  
 
-    c.execute("SELECT * FROM users WHERE db_ID=?", (userPK, ))
+    c.execute("SELECT * FROM users WHERE discord_ID=?", (userID, ))
 
     # Gets the row with the user's data
     row = c.fetchall()
@@ -266,6 +264,12 @@ async def me(ctx):
 
     # For the changes to take place
     conn.commit()
+
+@bot.command()
+async def deletethisshit(ctx):
+    for guild in bot.guilds:
+        for member in guild.members:
+            await ctx.send(f'```{member}```')
 
 ###################################################################################################
 
