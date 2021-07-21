@@ -13,6 +13,7 @@ from util import calculator_functions
 from requests.models import Response
 import requests, json
 
+# To use the Google Translate APIs
 from googletrans import Translator
 
 # To work with environment files
@@ -32,9 +33,11 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 
+# A required step to see all users
 intents = discord.Intents.all()
 
-# Creating a bot while also specialising the command prefix symbols
+# Creating a bot while also specialising the command prefix symbols and the intents
+# so we're able to see all the users and not just bots
 bot = commands.Bot(command_prefix=('$', '?'), intents=intents)
 
 ###################################################################################################
@@ -66,9 +69,6 @@ c.execute(sql_create_users_table)
 
 conn.commit()
 
-# Closing the connection to the database
-#conn.close()
-
 ###################################################################################################
 
 # Command to calculate the given operation on the given numbers
@@ -82,30 +82,37 @@ async def calculate(ctx, num1, num2, op):
 
         if op == '+':
             result = calculator_functions.add(num1, num2)
+
             await ctx.send(f'```The result of the operation is: {result}```')
 
         if op == '-':
             result = calculator_functions.subtract(num1, num2)
+
             await ctx.send(f'```The result of the operation is: {result}```')
 
         if op == '*':
             result = calculator_functions.multiply(num1, num2)
+
             await ctx.send(f'```The result of the operation is: {result}```')
 
         if op == '/':
             result = calculator_functions.divide(num1, num2)
+
             await ctx.send(f'```The result of the operation is: {result}```')
 
         if op == '//':
             result = calculator_functions.divide_no_remainder(num1, num2)
+
             await ctx.send(f'```The result of the operation is: {result}```')
 
         if op == '**':
             result = calculator_functions.power(num1, num2)
+
             await ctx.send(f'```The result of the operation is: {result}```')
 
         if op == '%':
             result = calculator_functions.modulo(num1, num2)
+
             await ctx.send(f'```The result of the operation is: {result}```')
 
     except ValueError:
@@ -122,6 +129,7 @@ async def translate(ctx, firstlang, secondlang, *args):
 
     for i in range(len(args)):
         word += args[i]
+
         if i != (len(args) - 1):
             word += ' '
 
@@ -156,32 +164,18 @@ async def translate(ctx, firstlang, secondlang, *args):
 # Prints the manual
 @bot.command()
 async def manual(ctx):
-    await ctx.send(f'''```
-$pomoc, $helpplz, $manual, $napoveda - print the manual
-
-$time <X>, $cas <X> - prints the time in city X, returns an error if the city hasn't been found or if the input is invalid
-
-$weather <X>, $pocasi <X> - prints the weather report of the city X, returns an error if the city hasn't been found or if the input is invalid
-
-$covid, $korona <X> - prints the covid report of the country X, returns an error if the country hasn't been found or if the input is invalid
-
-$translate <X> <Y> <z>, $prelozit <X> <Y> <z> - prints the translation the word <z> from language X to language Y
-
-$calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical operation on numbers X and Y, returns errors if input is invalid
-
-$compilate <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation.
-    ```''')
+    await ctx.send(f'''```TBD```''')
 
 # Command to determine the temperature in a city given as argument
 # Uses third party geopy APIs
 @bot.command()
 async def weather(ctx, *args):
     try:
-
         city = ''
 
         for i in range(len(args)):
             city += args[i]
+
             if i != (len(args) - 1):
                 city += ' '
 
@@ -211,42 +205,73 @@ async def weather(ctx, *args):
         await ctx.send(f'```Sorry, can\'t find any info about that city.```')
 
 
-# Handles every time a user connects to the server
-# Adds their data to the database
-
-# Is updated with each user connection
-userPK = 0
-
+# Handles every time the client connects to the server
+# Adds all the users' data to the database
 @bot.event
 async def on_connect():
-    # Field 5 of the database
-    firstSessionDate = datetime.now()
+    for guild in bot.guilds:
+        for member in guild.members:
+            # Field 4 of the database
+            firstSessionDate = datetime.now()
 
-    # Field 2 of the database
-    global userID
-    userID = bot.user.id
+            # Field 1 of the database
+            global userID
+            userID = member.id
 
-    # Field 3 of the database
-    userName = bot.user.name
+            # Field 2 of the database
+            userName = member.name
 
-    # Field 6 of the database
-    permissions = 'User'
+            # Field 5 of the database
+            permissions = 'User'
 
-    # Field 4 of the database
-    channels = ['#general']
-    channels = str(channels)
+            # Field 3 of the database
+            channels = ['#general']
+            channels = str(channels)
 
-    conn = sqlite3.connect(database)
+            conn = sqlite3.connect(database)
 
-    # Creating a cursor to operate on the table
-    c = conn.cursor()  
+            # Creating a cursor to operate on the table
+            c = conn.cursor()  
 
-    # The code to create the table
-    c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?, ?)""",
-        (userID, userName, channels, firstSessionDate, permissions))
+            # The code to create the table
+            c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?, ?)""",
+                (userID, userName, channels, firstSessionDate, permissions))
 
-    # For the changes to take place
-    conn.commit()
+            # For the changes to take place
+            conn.commit()
+
+# Called whenever a member joins the server
+@bot.event
+async def on_member_join(member):
+            # Field 4 of the database
+            firstSessionDate = datetime.now()
+
+            # Field 1 of the database
+            global userID
+            userID = member.id
+
+            # Field 2 of the database
+            userName = member.name
+
+            # Field 5 of the database
+            permissions = 'User'
+
+            # Field 3 of the database
+            channels = ['#general']
+            channels = str(channels)
+
+            conn = sqlite3.connect(database)
+
+            # Creating a cursor to operate on the table
+            c = conn.cursor()  
+
+            # The code to create the table
+            c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?, ?)""",
+                (userID, userName, channels, firstSessionDate, permissions))
+
+            # For the changes to take place
+            conn.commit()
+
 
 @bot.command()
 async def me(ctx):
@@ -254,6 +279,8 @@ async def me(ctx):
 
     # Creating a cursor to operate on the table
     c = conn.cursor()  
+
+    global userID
 
     c.execute("SELECT * FROM users WHERE discord_ID=?", (userID, ))
 
@@ -264,12 +291,6 @@ async def me(ctx):
 
     # For the changes to take place
     conn.commit()
-
-@bot.command()
-async def deletethisshit(ctx):
-    for guild in bot.guilds:
-        for member in guild.members:
-            await ctx.send(f'```{member}```')
 
 ###################################################################################################
 
