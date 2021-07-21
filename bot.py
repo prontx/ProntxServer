@@ -272,25 +272,24 @@ async def on_member_join(member):
             # For the changes to take place
             conn.commit()
 
+@bot.event
+async def on_message(message):
+    # Prints the info about the message author
+    if message.content == '$me':
+        conn = sqlite3.connect(database)
 
-@bot.command()
-async def me(ctx):
-    conn = sqlite3.connect(database)
+        # Creating a cursor to operate on the table
+        c = conn.cursor()  
 
-    # Creating a cursor to operate on the table
-    c = conn.cursor()  
+        c.execute("SELECT * FROM users WHERE discord_ID=?", (message.author.id, ))
 
-    global userID
+        # Gets the row with the user's data
+        row = c.fetchall()
 
-    c.execute("SELECT * FROM users WHERE discord_ID=?", (userID, ))
+        await message.channel.send(f'```{row}```')
 
-    # Gets the row with the user's data
-    row = c.fetchall()
-
-    await ctx.send(f'```{row}```')
-
-    # For the changes to take place
-    conn.commit()
+        # For the changes to take place
+        conn.commit()
 
 ###################################################################################################
 
