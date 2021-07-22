@@ -291,6 +291,45 @@ async def on_message(message):
         # For the changes to take place
         conn.commit()
 
+# Giving sb the role
+
+import discord
+
+'''
+@bot.event
+async def on_raw_reaction_add(payload):
+    #You forgot to await the bot.get_channel
+    channel = bot.get_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    guild = bot.get_guild(payload.guild_id)
+    #Put the following Line
+    member = guild.get_member(payload.user_id)
+    reaction = discord.utils.get(message.reactions, i=payload.emoji.name)
+
+    if payload.message_id == 867696665758138368 and reaction.emoji == ':slight_smile':
+        roles = discord.utils.get(guild.roles, name='Need help')
+        await member.add_roles(roles)
+        await reaction.remove(payload.member)
+'''
+
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    channel = await bot.fetch_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    guild = bot.get_guild(payload.guild_id)
+    #user = await bot.fetch_user(payload.user_id)
+    emoji = payload.emoji
+
+    member = guild.get_member(payload.user_id)
+
+    if (str(emoji.name) == '🥲') :
+        await channel.send('its okay')
+
+        roles = discord.utils.get(guild.roles, name='Need help')
+        await member.add_roles(roles)
+
+
 ###################################################################################################
 
 # The other name for the calculate command
