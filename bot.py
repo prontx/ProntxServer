@@ -51,7 +51,7 @@ database = r'bot.db'
 sql_create_users_table = """ CREATE TABLE IF NOT EXISTS users (
                                 discord_ID integer PRIMARY KEY,
                                 user_name text NOT NULL,
-                                channels text NOT NULL,
+                                channels text,
                                 begin_date text NOT NULL,
                                 permissions text NOT NULL  
                             );"""
@@ -312,7 +312,7 @@ async def on_raw_reaction_add(payload):
         await reaction.remove(payload.member)
 '''
 
-
+'''
 @bot.event
 async def on_raw_reaction_add(payload):
     channel = await bot.fetch_channel(payload.channel_id)
@@ -328,7 +328,58 @@ async def on_raw_reaction_add(payload):
 
         roles = discord.utils.get(guild.roles, name='Need help')
         await member.add_roles(roles)
+'''
 
+# The code for implementation of reaction roles
+@bot.event
+async def on_raw_reaction_add(payload):
+    channel = '867854256647176252'
+    message = '867855236861132860'
+    guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
+    emoji = payload.emoji
+
+    channels = []
+
+    if str(emoji.name) == '🎥' :
+        role = discord.utils.get(guild.roles, name='Movies')
+        channels.append('Movies')
+        await member.add_roles(role)
+    
+    if str(emoji.name) == '📖' :
+        role = discord.utils.get(guild.roles, name='Books')
+        channels.append('Books')
+        await member.add_roles(role)
+
+    if str(emoji.name) == '💻' :
+        role = discord.utils.get(guild.roles, name='Programming')
+        channels.append('Programming')
+        await member.add_roles(role)
+
+    if str(emoji.name) == '🤯' :
+        role = discord.utils.get(guild.roles, name='Politics')
+        channels.append('Politics')
+        await member.add_roles(role)
+
+    if str(emoji.name) == '🙂' :
+        role = discord.utils.get(guild.roles, name='Offtopic')
+        channels.append('Offtopic')
+        await member.add_roles(role)
+
+    conn = sqlite3.connect(database)
+
+    # Creating a cursor to operate on the table
+    c = conn.cursor()  
+
+    channels = str(channels)
+
+    # The code to create the table
+    c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
+
+    print(channels)
+
+    # For the changes to take place
+    conn.commit()
 
 ###################################################################################################
 
