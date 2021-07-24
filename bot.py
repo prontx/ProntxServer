@@ -6,6 +6,7 @@
 # Main driver file
 
 # Imports the package containing math functions definitions
+from copy import deepcopy
 from util import calculator_functions 
 # Can be used like: calculator_functions.add(a, b)
 
@@ -225,8 +226,7 @@ async def on_connect():
             permissions = 'User'
 
             # Field 3 of the database
-            channels = ['#general']
-            channels = str(channels)
+            channels = 'General'
 
             conn = sqlite3.connect(database)
 
@@ -239,6 +239,9 @@ async def on_connect():
 
             # For the changes to take place
             conn.commit()
+
+# To be used later
+channels = 'General '
 
 # Called whenever a member joins the server
 @bot.event
@@ -257,8 +260,7 @@ async def on_member_join(member):
             permissions = 'User'
 
             # Field 3 of the database
-            channels = ['#general']
-            channels = str(channels)
+            channels = 'General'
 
             conn = sqlite3.connect(database)
 
@@ -291,45 +293,6 @@ async def on_message(message):
         # For the changes to take place
         conn.commit()
 
-# Giving sb the role
-
-import discord
-
-'''
-@bot.event
-async def on_raw_reaction_add(payload):
-    #You forgot to await the bot.get_channel
-    channel = bot.get_channel(payload.channel_id)
-    message = await channel.fetch_message(payload.message_id)
-    guild = bot.get_guild(payload.guild_id)
-    #Put the following Line
-    member = guild.get_member(payload.user_id)
-    reaction = discord.utils.get(message.reactions, i=payload.emoji.name)
-
-    if payload.message_id == 867696665758138368 and reaction.emoji == ':slight_smile':
-        roles = discord.utils.get(guild.roles, name='Need help')
-        await member.add_roles(roles)
-        await reaction.remove(payload.member)
-'''
-
-'''
-@bot.event
-async def on_raw_reaction_add(payload):
-    channel = await bot.fetch_channel(payload.channel_id)
-    message = await channel.fetch_message(payload.message_id)
-    guild = bot.get_guild(payload.guild_id)
-    #user = await bot.fetch_user(payload.user_id)
-    emoji = payload.emoji
-
-    member = guild.get_member(payload.user_id)
-
-    if (str(emoji.name) == '🥲') :
-        await channel.send('its okay')
-
-        roles = discord.utils.get(guild.roles, name='Need help')
-        await member.add_roles(roles)
-'''
-
 # The code for implementation of reaction roles
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -337,41 +300,42 @@ async def on_raw_reaction_add(payload):
     message = '867855236861132860'
     guild = bot.get_guild(payload.guild_id)
     member = guild.get_member(payload.user_id)
+    
+    # This is the problem
     emoji = payload.emoji
 
-    channels = []
+    import copy
+    global channels
 
     if str(emoji.name) == '🎥' :
         role = discord.utils.get(guild.roles, name='Movies')
-        channels.append('Movies')
+        channels += 'Movies ' 
         await member.add_roles(role)
     
     if str(emoji.name) == '📖' :
         role = discord.utils.get(guild.roles, name='Books')
-        channels.append('Books')
+        channels += 'Books ' 
         await member.add_roles(role)
 
     if str(emoji.name) == '💻' :
         role = discord.utils.get(guild.roles, name='Programming')
-        channels.append('Programming')
+        channels += 'Programming ' 
         await member.add_roles(role)
 
     if str(emoji.name) == '🤯' :
         role = discord.utils.get(guild.roles, name='Politics')
-        channels.append('Politics')
+        channels += 'Politics ' 
         await member.add_roles(role)
 
     if str(emoji.name) == '🙂' :
         role = discord.utils.get(guild.roles, name='Offtopic')
-        channels.append('Offtopic')
+        channels += 'Offtopic ' 
         await member.add_roles(role)
 
     conn = sqlite3.connect(database)
 
     # Creating a cursor to operate on the table
     c = conn.cursor()  
-
-    channels = str(channels)
 
     # The code to create the table
     c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
@@ -381,185 +345,3 @@ async def on_raw_reaction_add(payload):
     # For the changes to take place
     conn.commit()
 
-###################################################################################################
-
-# The other name for the calculate command
-@bot.command()
-async def spocitat(ctx, num1, num2, op):
-    # Casting the arguments to floats so they're not considered strings
-    try:
-        num1 = float(num1)
-        num2 = float(num2)
-
-        if op == '+':
-            result = calculator_functions.add(num1, num2)
-            await ctx.send(f'```The result of the operation is: {result}```')
-
-        if op == '-':
-            result = calculator_functions.subtract(num1, num2)
-            await ctx.send(f'```The result of the operation is: {result}```')
-
-        if op == '*':
-            result = calculator_functions.multiply(num1, num2)
-            await ctx.send(f'```The result of the operation is: {result}```')
-
-        if op == '/':
-            if num2 == 0:
-                await ctx.send(f'```Cannot divide by zero!```')
-                raise ZeroDivisionError
-            result = calculator_functions.divide(num1, num2)
-            await ctx.send(f'```The result of the operation is: {result}```')
-
-        if op == '//':
-            if num2 == 0:
-                await ctx.send(f'```Cannot divide by zero!```')
-                raise ZeroDivisionError
-            result = calculator_functions.divide_no_remainder(num1, num2)
-            await ctx.send(f'```The result of the operation is: {result}```')
-
-        if op == '**':
-            result = calculator_functions.power(num1, num2)
-            await ctx.send(f'```The result of the operation is: {result}```')
-
-        if op == '%':
-            result = calculator_functions.modulo(num1, num2)
-            await ctx.send(f'```The result of the operation is: {result}```')
-
-    except ValueError:
-        await ctx.send(f'```Enter valid values!```')
-    
-    except ZeroDivisionError:
-        await ctx.send(f'```Cannot divide by zero!```')
-
-# The other name for the translate command
-@bot.command()
-async def prelozit(ctx, firstlang, secondlang, *args):
-    word = ''
-
-    for i in range(len(args)):
-        word += args[i]
-        if i != (len(args) - 1):
-            word += ' '
-    
-    import http.client
-
-    conn = http.client.HTTPSConnection("google-translate1.p.rapidapi.com")
-
-    payload = "q=" + word + "&format=text&target=" + secondlang +"&source=" + firstlang
-
-    headers = {
-        'content-type': "application/x-www-form-urlencoded",
-        'accept-encoding': "application/gzip",
-        'x-rapidapi-key': "03e84d1cebmsh8393172a48e2fb0p137f01jsn5239041898af",
-        'x-rapidapi-host': "google-translate1.p.rapidapi.com"
-    }
-
-    conn.request("POST", "/language/translate/v2", payload, headers)
-
-    res = conn.getresponse()
-
-    data = res.read()
-
-    result = data.decode('utf-8')
-
-    # Turns string into dictionary
-    result = eval(result)
-
-    result = result["data"]["translations"][0]["translatedText"]
-
-    await ctx.send(f'```The translation of your word/phrase is: {result}```')
-
-@bot.command()
-async def pomoc(ctx):
-    await ctx.send(f'''```
-$pomoc, $helpplz, $manual, $napoveda - print the manual
-
-$time <X>, $cas <X> - prints the time in city X, returns an error if the city hasn't been found or if the input is invalid
-
-$weather <X>, $pocasi <X> - prints the weather report of the city X, returns an error if the city hasn't been found or if the input is invalid
-
-$covid, $korona <X> - prints the covid report of the country X, returns an error if the country hasn't been found or if the input is invalid
-
-$translate <X> <Y> <z>, $prelozit <X> <Y> <z> - prints the translation the word <z> from language X to language Y
-
-$calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical operation on numbers X and Y, returns errors if input is invalid
-
-$compilate <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation.
-    ```''')
-
-@bot.command()
-async def helpplz(ctx):
-    await ctx.send(f'''```
-$pomoc, $helpplz, $manual, $napoveda - print the manual
-
-$time <X>, $cas <X> - prints the time in city X, returns an error if the city hasn't been found or if the input is invalid
-
-$weather <X>, $pocasi <X> - prints the weather report of the city X, returns an error if the city hasn't been found or if the input is invalid
-
-$covid, $korona <X> - prints the covid report of the country X, returns an error if the country hasn't been found or if the input is invalid
-
-$translate <X> <Y> <z>, $prelozit <X> <Y> <z> - prints the translation the word <z> from language X to language Y
-
-$calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical operation on numbers X and Y, returns errors if input is invalid
-
-$compilate <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation.
-    ```''')
-
-@bot.command()
-async def napoveda(ctx):
-    await ctx.send(f'''```
-$pomoc, $helpplz, $manual, $napoveda - print the manual
-
-$time <X>, $cas <X> - prints the time in city X, returns an error if the city hasn't been found or if the input is invalid
-
-$weather <X>, $pocasi <X> - prints the weather report of the city X, returns an error if the city hasn't been found or if the input is invalid
-
-$covid, $korona <X> - prints the covid report of the country X, returns an error if the country hasn't been found or if the input is invalid
-
-$translate <X> <Y> <z>, $prelozit <X> <Y> <z> - prints the translation the word <z> from language X to language Y
-
-$calculate <X> <Y> <z>, $spocitat <X> <Y> <z> - performs the <z> mathematical operation on numbers X and Y, returns errors if input is invalid
-
-$compilate <LANG> <CODE> - compilates the code written in the given language and prints the result of compilation.
-    ```''')
-
-# Command to determine the temperature in a city given as argument
-# Uses third party geopy APIs
-@bot.command()
-async def pocasi(ctx, *args):
-    try:
-
-        city = ''
-
-        for i in range(len(args)):
-            city += args[i]
-            if i != (len(args) - 1):
-                city += ' '
-
-        from geopy.geocoders import Nominatim
-
-        geolocator = Nominatim(user_agent='aurinko')
-
-        location = geolocator.geocode(city)
-
-        latitude = location.raw['lat']
-
-        longitude = location.raw['lon']
-
-        apiKey = '0676b93a6bd7fdb28d17cb06e21aa60b'
-
-        url = "https://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&appid=%s&units=metric" % (latitude, longitude, apiKey)
-
-        response = requests.get(url)
-
-        data = json.loads(response.text)
-
-        currentTemp = data["current"]["temp"]
-
-        await ctx.send(f'```Current temperature in {city} is: {currentTemp}°C```')
-
-    except AttributeError:
-        await ctx.send(f'```Sorry, can\'t find any info about that city.```')
-
-# Connecting the bot to the server
-bot.run(TOKEN)
