@@ -340,8 +340,59 @@ async def on_raw_reaction_add(payload):
     # The code to create the table
     c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
 
-    print(channels)
+    # For the changes to take place
+    conn.commit()
+
+# Case reaction is removed
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+    channel = '867854256647176252'
+    message = '867855236861132860'
+    guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
+    
+    # This is the problem
+    emoji = payload.emoji
+
+    import copy
+    global channels
+
+    if str(emoji.name) == '🎥' :
+        role = discord.utils.get(guild.roles, name='Movies')
+        channels += 'Movies ' 
+        await member.add_roles(role)
+    
+    if str(emoji.name) == '📖' :
+        role = discord.utils.get(guild.roles, name='Books')
+        channels += 'Books ' 
+        await member.add_roles(role)
+
+    if str(emoji.name) == '💻' :
+        role = discord.utils.get(guild.roles, name='Programming')
+        channels += 'Programming ' 
+        await member.add_roles(role)
+
+    if str(emoji.name) == '🤯' :
+        role = discord.utils.get(guild.roles, name='Politics')
+        channels += 'Politics ' 
+        await member.add_roles(role)
+
+    if str(emoji.name) == '🙂' :
+        role = discord.utils.get(guild.roles, name='Offtopic')
+        channels += 'Offtopic ' 
+        await member.add_roles(role)
+
+    conn = sqlite3.connect(database)
+
+    # Creating a cursor to operate on the table
+    c = conn.cursor()  
+
+    # The code to create the table
+    c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
 
     # For the changes to take place
     conn.commit()
 
+
+bot.run(TOKEN)
