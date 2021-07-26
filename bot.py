@@ -296,103 +296,136 @@ async def on_message(message):
 # The code for implementation of reaction roles
 @bot.event
 async def on_raw_reaction_add(payload):
-    channel = '867854256647176252'
-    message = '867855236861132860'
-    guild = bot.get_guild(payload.guild_id)
-    member = guild.get_member(payload.user_id)
+    channel = 867854256647176252
+    message = 867855236861132860
+    if payload.channel_id == channel and payload.message_id == message:
+        guild = bot.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
+
+        # This is the problem
+        emoji = payload.emoji
+
+        import copy
+        global channels
+
+        if str(emoji.name) == '🎥' :
+            role = discord.utils.get(guild.roles, name='Movies')
+            channels += 'Movies ' 
+            if role:
+                await member.add_roles(role)
+            else:
+                print('Something wrong with the role')
     
-    # This is the problem
-    emoji = payload.emoji
+        if str(emoji.name) == '📖' :
+            role = discord.utils.get(guild.roles, name='Books')
+            channels += 'Books ' 
+            if role:
+                await member.add_roles(role)
+            else:
+                print('Something wrong with the role')
 
-    import copy
-    global channels
+        if str(emoji.name) == '💻' :
+            role = discord.utils.get(guild.roles, name='Programming')
+            channels += 'Programming ' 
+            if role:
+                await member.add_roles(role)
+            else:
+                print('Something wrong with the role')
 
-    if str(emoji.name) == '🎥' :
-        role = discord.utils.get(guild.roles, name='Movies')
-        channels += 'Movies ' 
-        await member.add_roles(role)
-    
-    if str(emoji.name) == '📖' :
-        role = discord.utils.get(guild.roles, name='Books')
-        channels += 'Books ' 
-        await member.add_roles(role)
+        if str(emoji.name) == '🤯' :
+            role = discord.utils.get(guild.roles, name='Politics')
+            channels += 'Politics ' 
+            if role:
+                await member.add_roles(role)
+            else:
+                print('Something wrong with the role')
 
-    if str(emoji.name) == '💻' :
-        role = discord.utils.get(guild.roles, name='Programming')
-        channels += 'Programming ' 
-        await member.add_roles(role)
+        if str(emoji.name) == '🙂' :
+            role = discord.utils.get(guild.roles, name='Offtopic')
+            channels += 'Offtopic ' 
+            if role:
+                await member.add_roles(role)
+            else:
+                print('Something wrong with the role')
 
-    if str(emoji.name) == '🤯' :
-        role = discord.utils.get(guild.roles, name='Politics')
-        channels += 'Politics ' 
-        await member.add_roles(role)
+        conn = sqlite3.connect(database)
 
-    if str(emoji.name) == '🙂' :
-        role = discord.utils.get(guild.roles, name='Offtopic')
-        channels += 'Offtopic ' 
-        await member.add_roles(role)
+        # Creating a cursor to operate on the table
+        c = conn.cursor()  
 
-    conn = sqlite3.connect(database)
+        # The code to create the table
+        c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
 
-    # Creating a cursor to operate on the table
-    c = conn.cursor()  
-
-    # The code to create the table
-    c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
-
-    # For the changes to take place
-    conn.commit()
+        # For the changes to take place
+        conn.commit()
 
 # Case reaction is removed
 
+
 @bot.event
 async def on_raw_reaction_remove(payload):
-    channel = '867854256647176252'
-    message = '867855236861132860'
-    guild = bot.get_guild(payload.guild_id)
-    member = guild.get_member(payload.user_id)
+    channel = 867854256647176252
+    message = 867855236861132860
+    if payload.channel_id == channel and payload.message_id == message:
+        guild = bot.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
+
+        # This is the problem
+        emoji = payload.emoji
+
+        import copy
+        global channels
+
+        channels = str(channels)
+        channels = channels.split()
+
+        if str(emoji.name) == '🎥' :
+            role = discord.utils.get(guild.roles, name='Movies')
+            for index in range(len(channels) - 1, -1, -1):
+                if channels[index] == 'Movies':
+                    channels.pop(index) 
+            await member.remove_roles(role)
     
-    # This is the problem
-    emoji = payload.emoji
+        if str(emoji.name) == '📖' :
+            role = discord.utils.get(guild.roles, name='Books')
+            for index in range(len(channels) - 1, -1, -1):
+                if channels[index] == 'Books':
+                    channels.pop(index) 
+            await member.remove_roles(role)
 
-    import copy
-    global channels
+        if str(emoji.name) == '💻' :
+            role = discord.utils.get(guild.roles, name='Programming')
+            for index in range(len(channels) - 1, -1, -1):
+                if channels[index] == 'Programming':
+                    channels.pop(index)  
+            await member.remove_roles(role)
 
-    if str(emoji.name) == '🎥' :
-        role = discord.utils.get(guild.roles, name='Movies')
-        channels += 'Movies ' 
-        await member.add_roles(role)
-    
-    if str(emoji.name) == '📖' :
-        role = discord.utils.get(guild.roles, name='Books')
-        channels += 'Books ' 
-        await member.add_roles(role)
+        if str(emoji.name) == '🤯' :
+            role = discord.utils.get(guild.roles, name='Politics')
+            for index in range(len(channels) - 1, -1, -1):
+                if channels[index] == 'Politics':
+                    channels.pop(index) 
+            await member.remove_roles(role)
 
-    if str(emoji.name) == '💻' :
-        role = discord.utils.get(guild.roles, name='Programming')
-        channels += 'Programming ' 
-        await member.add_roles(role)
+        if str(emoji.name) == '🙂' :
+            role = discord.utils.get(guild.roles, name='Offtopic')
+            for index in range(len(channels) - 1, -1, -1):
+                if channels[index] == 'Offtopic':
+                    channels.pop(index)  
+            await member.remove_roles(role)
 
-    if str(emoji.name) == '🤯' :
-        role = discord.utils.get(guild.roles, name='Politics')
-        channels += 'Politics ' 
-        await member.add_roles(role)
+        conn = sqlite3.connect(database)
 
-    if str(emoji.name) == '🙂' :
-        role = discord.utils.get(guild.roles, name='Offtopic')
-        channels += 'Offtopic ' 
-        await member.add_roles(role)
+        # Creating a cursor to operate on the table
+        c = conn.cursor()  
 
-    conn = sqlite3.connect(database)
+        channels = str(channels)
 
-    # Creating a cursor to operate on the table
-    c = conn.cursor()  
+        # The code to create the table
+        c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
 
-    # The code to create the table
-    c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
-
-    # For the changes to take place
-    conn.commit()
+        # For the changes to take place
+        conn.commit()
 
 
 bot.run(TOKEN)
