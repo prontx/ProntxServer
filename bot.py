@@ -11,7 +11,7 @@ from util import calculator_functions
 # Can be used like: calculator_functions.add(a, b)
 
 # To make requests to third party APIs
-from requests.models import Response
+from requests.models import Response, to_key_val_list
 import requests, json
 
 # To use the Google Translate APIs
@@ -293,6 +293,15 @@ async def on_message(message):
         # For the changes to take place
         conn.commit()
 
+    # Should be here so the message is later sent to be processed by bot.command()
+    await bot.process_commands(message)
+
+# To be later used in the voting
+answer = 0
+
+import asyncio
+lock = asyncio.Lock()
+
 # The code for implementation of reaction roles
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -358,6 +367,23 @@ async def on_raw_reaction_add(payload):
 
         # For the changes to take place
         conn.commit()
+
+    else:
+        global lock
+
+        await lock.acquire()
+        try:
+            global answer
+
+            if str(payload.emoji.name) == '1️⃣':
+                    answer = answer + 1
+
+            print(answer)
+
+            if str(payload.emoji.name) == '2️⃣':
+                answer = answer - 1           
+        finally:
+            lock.release()
 
 # Case reaction is removed
 
@@ -427,5 +453,24 @@ async def on_raw_reaction_remove(payload):
         # For the changes to take place
         conn.commit()
 
+# Command to initiate a vote between two options given as arguments
+# Voting is over after 10 seconds and result is printed
+@bot.command()
+async def vote(ctx, question, choice1, choice2):
+    await ctx.send(f'```{question} \n Select between {choice1} or {choice2}```')
+
+    import time
+
+    time.sleep(5)
+
+    global lock
+    await lock.acquire()
+    try:
+
+        global answer
+
+        await ctx.send(f'```{answer}```')
+    finally:
+        lock.release()
 
 bot.run(TOKEN)
