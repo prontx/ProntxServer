@@ -128,12 +128,15 @@ async def calculate(ctx, num1, num2, op):
         if op == '%':
             result = calculator_functions.modulo(num1, num2)
             await ctx.send(f'```The result of the operation is: {result}```')
-
+    
     except ValueError:
         await ctx.send(f'```Enter valid values!```')
 
     except ZeroDivisionError:
         await ctx.send(f'```Cannot divide by zero!```')
+
+    if op != '%' and op != '**' and op != '//' and op != '/' and op != '+' and op != '-' and op != '*':
+        await ctx.send(f'```Please enter a valid operation```')
 
 # Command to translate the given word from one language to the other
 # Uses Google Translator APIs
@@ -234,7 +237,7 @@ async def on_connect():
             conn.commit()
 
 # To be used later ??????????????????????? WTF
-channels = 'General '
+channels = ''
 
 # Called whenever a member joins the server
 @bot.event
@@ -256,7 +259,7 @@ async def on_member_join(member):
             c = conn.cursor()  
 
             # The code to create the table
-            c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?, ?)""",
+            c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?)""",
                 (userID, userName, channels, firstSessionDate))
 
             conn.commit()
@@ -364,7 +367,7 @@ async def on_raw_reaction_remove(payload):
         emoji = payload.emoji
         global channels
 
-        channels = str(channels)
+        #channels = str(channels)
         channels = channels.split()
 
         if str(emoji.name) == '🎥' :
@@ -430,22 +433,19 @@ async def vote(ctx, question, choice1, choice2):
 # Prints the manual
 @bot.command()
 async def manual(ctx):
-    await ctx.send(f'''```
-        $manual - print the manual
+    await ctx.send(f'''```$manual - print the manual
 
-        $weather city - prints the weather report of the city, returns an error if the city hasn't been found or if the input is invalid
+$weather city - prints the weather report of the city, returns an error if the city hasn't been found or if the input is invalid
 
-        $translate firstlang secondlang expression - prints the translation of the expression from language firstlang to language secondlang
+$translate firstlang secondlang expression - prints the translation of the expression from language firstlang to language secondlang
 
-        $calculate num1 num2 op - performs the op mathematical operation on numbers num1 and num2, returns errors if input is invalid
+$calculate num1 num2 op - performs the op mathematical operation on numbers num1 and num2, returns errors if input is invalid
 
-        ;compile LANG CODE - compilates the code written in the given language and prints the result of compilation (Uses third party bot)
+;compile LANG CODE - compilates the code written in the given language and prints the result of compilation (Uses third party bot)
 
-        $vote question choice1 choice2 - starts a vote with two options given as arguments, over after 10 seconds
+$vote question choice1 choice2 - starts a vote with two options given as arguments, over after 10 seconds
     
-        $me - prints the database information about the user
-    
-    ```''')
+$me - prints the database information about the user```''')
 
 
 
