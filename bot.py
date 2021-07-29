@@ -202,6 +202,8 @@ async def weather(ctx, *args):
     except AttributeError:
         await ctx.send(f'```Sorry, can\'t find any info about that city.```')
 
+# To be used later with databases
+channels = []
 
 # Handles every time the client connects to the server
 # Adds all the users' data to the dtabase
@@ -225,19 +227,17 @@ async def on_connect():
 
             # Field 3 of the database
             # The channels user follows
-            channels = 'General'
+            channels = ['General']
 
             conn = sqlite3.connect(database)
             c = conn.cursor()  
 
             # The code to apply changes to the table
             c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?)""",
-                (userID, userName, channels, firstSessionDate))
+                (userID, userName, str(channels), firstSessionDate))
 
             conn.commit()
 
-# To be used later ??????????????????????? WTF
-channels = ''
 
 # Called whenever a member joins the server
 @bot.event
@@ -253,14 +253,14 @@ async def on_member_join(member):
             userName = member.name
 
             # Field 3 of the database
-            channels = 'General'
+            channels = ['General']
 
             conn = sqlite3.connect(database)
             c = conn.cursor()  
 
             # The code to create the table
             c.execute("""INSERT or IGNORE INTO users VALUES (?, ?, ?, ?)""",
-                (userID, userName, channels, firstSessionDate))
+                (userID, userName, str(channels), firstSessionDate))
 
             conn.commit()
 
@@ -299,9 +299,10 @@ async def on_raw_reaction_add(payload):
         emoji = payload.emoji
         global channels
 
+
         if str(emoji.name) == '🎥' :
             role = discord.utils.get(guild.roles, name='Movies')
-            channels += 'Movies ' 
+            channels.append('Movies') 
             if role:
                 await member.add_roles(role)
             else:
@@ -309,7 +310,7 @@ async def on_raw_reaction_add(payload):
     
         if str(emoji.name) == '📖' :
             role = discord.utils.get(guild.roles, name='Books')
-            channels += 'Books ' 
+            channels.append('Books') 
             if role:
                 await member.add_roles(role)
             else:
@@ -317,7 +318,7 @@ async def on_raw_reaction_add(payload):
 
         if str(emoji.name) == '💻' :
             role = discord.utils.get(guild.roles, name='Programming')
-            channels += 'Programming ' 
+            channels.append('Programming') 
             if role:
                 await member.add_roles(role)
             else:
@@ -325,7 +326,7 @@ async def on_raw_reaction_add(payload):
 
         if str(emoji.name) == '🤯' :
             role = discord.utils.get(guild.roles, name='Politics')
-            channels += 'Politics ' 
+            channels.append('Politics') 
             if role:
                 await member.add_roles(role)
             else:
@@ -333,7 +334,7 @@ async def on_raw_reaction_add(payload):
 
         if str(emoji.name) == '🙂' :
             role = discord.utils.get(guild.roles, name='Offtopic')
-            channels += 'Offtopic ' 
+            channels.append('Offtopic') 
             if role:
                 await member.add_roles(role)
             else:
@@ -343,7 +344,7 @@ async def on_raw_reaction_add(payload):
         c = conn.cursor()  
 
         # The code to apply changes to the table
-        c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
+        c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (str(channels), member.id))
 
         conn.commit()
 
@@ -366,9 +367,6 @@ async def on_raw_reaction_remove(payload):
         member = guild.get_member(payload.user_id)
         emoji = payload.emoji
         global channels
-
-        #channels = str(channels)
-        channels = channels.split()
 
         if str(emoji.name) == '🎥' :
             role = discord.utils.get(guild.roles, name='Movies')
@@ -408,10 +406,8 @@ async def on_raw_reaction_remove(payload):
         conn = sqlite3.connect(database)
         c = conn.cursor()  
 
-        channels = str(channels)
-
         # The code to apply changes to the table
-        c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (channels, member.id))
+        c.execute("""UPDATE users SET channels=? WHERE discord_ID=?""", (str(channels), member.id))
         conn.commit()
 
 # Command to initiate a vote with two options given as arguments
