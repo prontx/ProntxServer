@@ -436,19 +436,19 @@ async def on_raw_reaction_remove(payload):
 # Arguments: the voting question, the first option, the second option
 @bot.command()
 async def vote(ctx, question, choice1, choice2):
-    if re.match('[A-Z]+', question):
+    if re.match('[A-Z]*', question):
         q = question
     else:
         await ctx.send(f'```Something went wrong```')
         return
 
-    if re.match('[A-Z]+', choice1):
+    if re.match('[A-Z]*', choice1):
         ch1 = choice1
     else:
         await ctx.send(f'```Something went wrong```')
         return
 
-    if re.match('[A-Z]+', choice2):
+    if re.match('[A-Z]*', choice2):
         ch2 = choice2
     else:
         await ctx.send(f'```Something went wrong```')
