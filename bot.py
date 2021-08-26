@@ -204,14 +204,17 @@ async def weather(ctx, *args):
             if i != (len(args) - 1):
                 city += ' '
 
+        USER_AGENT = os.getenv('WEATHER_USER_AGENT')
+        WEATHER_API_KEY = os.getenv('WEATHER_API_KEY')
+
         from geopy.geocoders import Nominatim
-        geolocator = Nominatim(user_agent='aurinko')
+        geolocator = Nominatim(user_agent=USER_AGENT)
         location = geolocator.geocode(city)
 
         latitude = location.raw['lat']
         longitude = location.raw['lon']
 
-        apiKey = '0676b93a6bd7fdb28d17cb06e21aa60b'
+        apiKey = WEATHER_API_KEY
         url = "https://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&appid=%s&units=metric" % (latitude, longitude, apiKey)
 
         response = requests.get(url)
