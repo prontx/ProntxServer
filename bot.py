@@ -53,7 +53,8 @@ import sqlite3
 # To handle asynchronous accesses to shared variables
 import asyncio
 
-
+# To ensure input is of certain datatype
+import re
 
 # Section 2: database setup
 ###################################################################################################
@@ -131,9 +132,11 @@ async def calculate(ctx, num1, num2, op):
     
     except ValueError:
         await ctx.send(f'```Enter valid values!```')
+        return
 
     except ZeroDivisionError:
         await ctx.send(f'```Cannot divide by zero!```')
+        return
 
     if op != '%' and op != '**' and op != '//' and op != '/' and op != '+' and op != '-' and op != '*':
         await ctx.send(f'```Please enter a valid operation```')
@@ -160,16 +163,34 @@ async def translate(ctx, firstlang, secondlang, *args):
     }
     conn.request("POST", "/language/translate/v2", payload, headers)
     res = conn.getresponse()
-    data = res.read()
-    result = data.decode('utf-8')
+    if res:
+        data = res.read()
+    else:
+        await ctx.send(f'```Something went wrong```')
+        return
+    if data:
+        intermediaryResult = data.decode('utf-8')
+    else:
+        await ctx.send(f'```Something went wrong```')
+        return
 
+    if intermediaryResult:
     # Turns the decoded string into dictionary for to be easier to process later
-    result = eval(result)
+        result = {}
+        result = eval(intermediaryResult)
+    else:
+        await ctx.send(f'```Something went wrong```')
+        return
 
-    # Gets the translation itself
-    result = result["data"]["translations"][0]["translatedText"]
+    for i in result:
+        if i == "data":
+            # Gets the translation itself
+            endResult = result["data"]["translations"][0]["translatedText"]
+        else:
+            await ctx.send(f'```Something went wrong```')
+            return
 
-    await ctx.send(f'```The translation of your word/phrase is: {result}```')
+    await ctx.send(f'```The translation of your word/phrase is: {endResult}```')
 
 # Command to determine the temperature in a city given as argument
 # Uses third party geopy APIs
@@ -415,14 +436,32 @@ async def on_raw_reaction_remove(payload):
 # Arguments: the voting question, the first option, the second option
 @bot.command()
 async def vote(ctx, question, choice1, choice2):
-    await ctx.send(f'```{question} \nSelect between {choice1} or {choice2}```')
+    if re.match('[A-Z]+', question):
+        q = question
+    else:
+        await ctx.send(f'```Something went wrong```')
+        return
+
+    if re.match('[A-Z]+', choice1):
+        ch1 = choice1
+    else:
+        await ctx.send(f'```Something went wrong```')
+        return
+
+    if re.match('[A-Z]+', choice2):
+        ch2 = choice2
+    else:
+        await ctx.send(f'```Something went wrong```')
+        return
+
+    await ctx.send(f'```{q} \nSelect between {ch1} or {ch2}```')
 
     await asyncio.sleep(10)
 
     if answer > 0:
-        await ctx.send(f'```{choice1} wins!```')
+        await ctx.send(f'```{ch1} wins!```')
     elif answer < 0:
-        await ctx.send(f'```{choice2} wins!```')
+        await ctx.send(f'```{ch2} wins!```')
     else:
         await ctx.send(f'```Tie!```')
 
